@@ -43,7 +43,7 @@ module Ohai
     # otherwise they will get method_missing'd to nil by Mixlib::Config.
     private
     def self.default_hints_path
-      [ platform_specific_path('/etc/chef/ohai/hints') ]
+      [ ChefConfig::Config.platform_specific_path('/etc/chef/ohai/hints') ]
     end
 
     def self.default_plugin_path
