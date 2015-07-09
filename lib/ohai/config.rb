@@ -107,4 +107,9 @@ EOM
       Ohai::Log.warn(msg)
     end
   end
+
+  # Shortcut for Ohai::Config.ohai
+  def self.config
+    Config::ohai
+  end
 end

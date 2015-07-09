@@ -138,4 +138,10 @@ RSpec.describe Ohai::Config do
       end
     end
   end
+
+  describe "Ohai.config" do
+    it "returns the ohai config context" do
+      expect(Ohai.config).to eq(Ohai::Config.ohai)
+    end
+  end
 end
