@@ -14,6 +14,6 @@ group :development do
   gem "sigar", :platform => "ruby"
   gem 'plist'
 
-  # gem 'pry-debugger'
+  # gem 'pry-byebug'
   # gem 'pry-stack_explorer'
 end
