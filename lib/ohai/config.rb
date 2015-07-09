@@ -18,8 +18,22 @@
 # limitations under the License.
 #
 
+require 'chef-config/config' # for platform_specific_path
 require 'mixlib/config'
 require 'ohai/log'
+
+# TODO: https://github.com/chef/chef-rfc/blob/master/rfc053-ohai-config.md
+# Once Ohai::Config is fully deprecated we can drop the mixlib/config in
+# favor of chef-config:
+# module Ohai
+#   Config = ChefConfig::Config
+#   class Config
+#     # add the ohai config context
+#     config_context :ohai do
+#       # ...
+#     end
+#   end
+# end
 
 module Ohai
   class Config
@@ -37,17 +51,6 @@ module Ohai
     end
 
     public
-    # from chef/config.rb, should maybe be moved to mixlib-config?
-    def self.platform_specific_path(path)
-      if RUBY_PLATFORM =~ /mswin|mingw|windows/
-        # turns /etc/chef/client.rb into C:/chef/client.rb
-        path = File.join(ENV['SYSTEMDRIVE'], path.split('/')[2..-1])
-        # ensure all forward slashes are backslashes
-        path.gsub!(File::SEPARATOR, (File::ALT_SEPARATOR || '\\'))
-      end
-      path
-    end
-
     # Copy deprecated configuration options into the ohai config context.
     def self.merge_deprecated_config
       [ :hints_path, :plugin_path ].each do |option|
