@@ -51,7 +51,6 @@ provides 'fish'
 EOF
 
     before do
-      @original_config = Ohai.config[:plugin_path]
       Ohai.config[:plugin_path] = [ path_to(".") ]
     end
 
@@ -85,12 +84,7 @@ provides 'bear'
 EOF
 
     before do
-      @original_config = Ohai.config[:plugin_path]
       Ohai.config[:plugin_path] = [ path_to("repo1"), path_to("repo2") ]
-    end
-
-    after do
-      Ohai.config[:plugin_path] = @original_config
     end
 
     it "load_plugins() should load all the plugins" do
@@ -106,14 +100,6 @@ EOF
   end
 
   describe "when running plugins" do
-    before do
-      @original_config = Ohai.config[:plugin_path]
-    end
-
-    after do
-      Ohai.config[:plugin_path] = @original_config
-    end
-
     when_plugins_directory "contains v6 plugins only" do
       with_plugin("zoo.rb", <<EOF)
 provides 'zoo'
@@ -384,12 +370,7 @@ end
 EOF
 
       before do
-        @original_config = Ohai.config[:plugin_path]
         Ohai.config[:plugin_path] = [ path_to(".") ]
-      end
-
-      after do
-         Ohai.config[:plugin_path] = @original_config
       end
 
       it "should collect all data" do
@@ -427,12 +408,7 @@ end
 EOF
 
       before do
-        @original_config = Ohai.config[:plugin_path]
         Ohai.config[:plugin_path] = [ path_to(".") ]
-      end
-
-      after do
-         Ohai.config[:plugin_path] = @original_config
       end
 
       it "version 6 should run" do
@@ -475,12 +451,7 @@ end
 EOF
 
       before do
-        @original_config = Ohai.config[:plugin_path]
         Ohai.config[:plugin_path] = [ path_to(".") ]
-      end
-
-      after do
-         Ohai.config[:plugin_path] = @original_config
       end
 
       it "should collect all the data properly" do
@@ -502,12 +473,7 @@ message v7message
 EOF
 
       before do
-        @original_config = Ohai.config[:plugin_path]
         Ohai.config[:plugin_path] = [ path_to(".") ]
-      end
-
-      after do
-         Ohai.config[:plugin_path] = @original_config
       end
 
       it "should raise DependencyNotFound" do
@@ -525,12 +491,7 @@ EOF
       E
 
       before do
-        @original_config = Ohai.config[:plugin_path]
         Ohai.config[:plugin_path] = [ path_to(".") ]
-      end
-
-      after do
-        Ohai.config[:plugin_path] = @original_config
       end
 
       it "reloads only the v6 plugin when given a specific plugin to load" do
@@ -552,12 +513,7 @@ EOF
       E
 
       before do
-        @original_config = Ohai.config[:plugin_path]
         Ohai.config[:plugin_path] = [ path_to(".") ]
-      end
-
-      after do
-        Ohai.config[:plugin_path] = @original_config
       end
 
       it "should rerun the plugin providing the desired attributes" do
@@ -611,15 +567,10 @@ EOF
       E
 
       before do
-        @original_config = Ohai.config[:plugin_path]
         Ohai.config[:plugin_path] = [ path_to(".") ]
         Ohai::Log.init(STDOUT)
         Ohai::Log.level = :debug
         ohai.all_plugins
-      end
-
-      after do
-        Ohai.config[:plugin_path] = @original_config
       end
 
       it "should rerun the plugin providing the desired attributes" do
@@ -682,12 +633,7 @@ EOF
       E
 
       before do
-        @original_config = Ohai.config[:plugin_path]
         Ohai.config[:plugin_path] = [ path_to(".") ]
-      end
-
-      after do
-        Ohai.config[:plugin_path] = @original_config
       end
 
       it "should run all the plugins when a top level attribute is specified" do
