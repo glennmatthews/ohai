@@ -74,6 +74,7 @@ class Ohai::Application
     @attributes = parse_options
     @attributes = nil if @attributes.empty?
 
+    Ohai::Config.merge_deprecated_config
     Ohai.config.merge!(config)
     if Ohai.config[:directory]
       Ohai.config[:plugin_path] << Ohai.config[:directory]
