@@ -18,29 +18,19 @@
 # limitations under the License.
 #
 
-require 'chef-config/config' # for platform_specific_path
-require 'mixlib/config'
 require 'ohai/log'
+require 'chef-config/logger'
 
-# TODO: https://github.com/chef/chef-rfc/blob/master/rfc053-ohai-config.md
-# Once Ohai::Config is fully deprecated we can drop the mixlib/config in
-# favor of chef-config:
-# module Ohai
-#   Config = ChefConfig::Config
-#   class Config
-#     # add the ohai config context
-#     config_context :ohai do
-#       # ...
-#     end
-#   end
-# end
+ChefConfig::Logger = Ohai::Log
+
+require 'chef-config/config'
 
 module Ohai
-  class Config
-    extend Mixlib::Config
+  Config = ChefConfig::Config
 
+  class Config
     # These methods need to be defined before they are used as config defaults,
-    # otherwise they will get method_missing'd to nil by Mixlib::Config.
+    # otherwise they will get method_missing'd to nil.
     private
     def self.default_hints_path
       [ ChefConfig::Config.platform_specific_path('/etc/chef/ohai/hints') ]
