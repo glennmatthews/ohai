@@ -28,6 +28,8 @@ require 'chef-config/config'
 module Ohai
   Config = ChefConfig::Config
 
+  # Reopens ChefConfig::Config to add Ohai configuration settings.
+  # see: https://github.com/chef/chef/blob/master/lib/chef/config.rb
   class Config
     # These methods need to be defined before they are used as config defaults,
     # otherwise they will get method_missing'd to nil.
