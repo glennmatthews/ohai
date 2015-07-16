@@ -37,7 +37,9 @@ Ohai.plugin(:Platform) do
     end
     if os_release_info['CISCO_RELEASE_INFO'] && File.exist?(os_release_info['CISCO_RELEASE_INFO'])
       os_release_info
+      #more logic needed here to read the redirect on a CentOS guest
     else
+      #WRL without the CISCO FILE?
       false
     end
   end
@@ -74,15 +76,13 @@ Ohai.plugin(:Platform) do
       platform get_redhatish_platform(contents)
       platform_version contents.match(/(\d\.\d\.\d)/)[0]
     elsif File.exist?("/etc/redhat-release")
-      if File.exist?('/etc/os-release') && (os_release_info = os_release_file_is_cisco? ) # check if Cisco
-        platform os_release_info['ID']
-        platform_family os_release_info['ID_LIKE']
-        platform_version os_release_info['VERSION'] || ""
-      else
-        contents = File.read("/etc/redhat-release").chomp
-        platform get_redhatish_platform(contents)
-        platform_version get_redhatish_version(contents)
-      end
+      contents = File.read("/etc/redhat-release").chomp
+      platform get_redhatish_platform(contents)
+      platform_version get_redhatish_version(contents)
+    elsif os_release_info = os_release_file_is_cisco? # check if Cisco, already skipped RHEL
+      platform os_release_info['ID']
+      platform_family os_release_info['ID_LIKE']
+      platform_version os_release_info['VERSION'] || ""
     elsif File.exist?("/etc/system-release")
       contents = File.read("/etc/system-release").chomp
       platform get_redhatish_platform(contents)
