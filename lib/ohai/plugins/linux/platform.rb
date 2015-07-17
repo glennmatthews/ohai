@@ -32,12 +32,22 @@ Ohai.plugin(:Platform) do
     return false unless File.exist?('/etc/os-release')
     os_release_info = File.read('/etc/os-release').split.inject({}) do |map, key_value_line|
       key, _separator, value = key_value_line.partition('=')
-      map[key] = value
+      # strip leading/trailing quotes
+      map[key] = value.gsub(/\A"|"\Z/, '')
       map
     end
-    if os_release_info['CISCO_RELEASE_INFO'] && File.exist?(os_release_info['CISCO_RELEASE_INFO'])
-      os_release_info
-      #more logic needed here to read the redirect on a CentOS guest
+    cisco_release_info = os_release_info['CISCO_RELEASE_INFO']
+    if cisco_release_info && File.exist?(cisco_release_info)
+      if cisco_release_info == '/etc/os-release'
+        return os_release_info
+      end
+      # Read Cisco release info to supplement/override os-release info.
+      cisco_release_info = File.read(cisco_release_info).split.inject({}) do |map, key_value_line|
+        key, _separator, value = key_value_line.partition('=')
+        map[key] = value.gsub(/\A"|"\Z/, '')
+        map
+      end
+      os_release_info.merge!(cisco_release_info)
     else
       #WRL without the CISCO FILE?
       false
@@ -77,12 +87,18 @@ Ohai.plugin(:Platform) do
       platform_version contents.match(/(\d\.\d\.\d)/)[0]
     elsif File.exist?("/etc/redhat-release")
       contents = File.read("/etc/redhat-release").chomp
-      platform get_redhatish_platform(contents)
-      platform_version get_redhatish_version(contents)
-    elsif os_release_info = os_release_file_is_cisco? # check if Cisco, already skipped RHEL
-      platform os_release_info['ID']
-      platform_family os_release_info['ID_LIKE']
-      platform_version os_release_info['VERSION'] || ""
+      if (os_release_info = os_release_file_is_cisco? ) # check if Cisco
+        if os_release_info['ID'] == 'nexus'
+          platform 'nexus'
+        else
+          platform get_redhatish_platform(contents)
+        end
+        platform_family 'rhel'
+        platform_version os_release_info['VERSION'] || get_redhatish_version(contents)
+      else
+        platform get_redhatish_platform(contents)
+        platform_version get_redhatish_version(contents)
+      end
     elsif File.exist?("/etc/system-release")
       contents = File.read("/etc/system-release").chomp
       platform get_redhatish_platform(contents)
@@ -113,6 +129,15 @@ Ohai.plugin(:Platform) do
       # no way to determine platform_version in a rolling release distribution
       # kernel release will be used - ex. 3.13
       platform_version `uname -r`.strip
+    elsif (os_release_info = os_release_file_is_cisco?)
+      # Cisco platform not based on known distro above
+      if os_release_info['ID'] == 'nexus'
+        platform 'nexus'
+        platform_family 'cisco-wrlinux'
+      elsif os_release_info['ID_LIKE'] =~ /cisco-wrlinux/
+        platform_family 'cisco-wrlinux'
+      end
+      platform_version os_release_info['VERSION'] || ""
     elsif lsb[:id] =~ /RedHat/i
       platform "redhat"
       platform_version lsb[:release]
