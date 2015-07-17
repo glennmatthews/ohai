@@ -366,7 +366,6 @@ OS_RELEASE
         end
 
         before do
-          expect(File).to receive(:read).with("/etc/os-release").and_return(os_release_content)
           expect(File).to receive(:read).with("/etc/redhat-release").and_return("CentOS release 7.1")
         end
 
@@ -594,8 +593,6 @@ OS_RELEASE
   end
 
   describe "on Wind River Linux for Cisco Nexus" do
-
-    let(:have_redhat_release) { true }
 
     let(:have_os_release) { true }
 
